@@ -1,0 +1,13 @@
+{
+  "hosting": {
+    "public": ".next/server/app",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ]
+  },
+  "functions": {
+    "source": "functions"
+  }
+}
