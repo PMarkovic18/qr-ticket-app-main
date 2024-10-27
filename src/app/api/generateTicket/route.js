@@ -42,13 +42,15 @@ export async function POST(req, res) {
       return new Response(JSON.stringify({ message: 'Limit of 3 tickets reached for this user.' }), { status: 400 });
     }
 
+    const user = userSub ? userSub : "";
+
     const ticketId = uuidv4();
     const newTicket = {
       vatin,
       firstName,
       lastName,
       createdAt: new Date().toISOString(),
-      userSub,
+      user,
     };
 
     await setDoc(doc(db, 'tickets', ticketId), newTicket);
