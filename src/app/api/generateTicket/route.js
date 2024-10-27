@@ -1,42 +1,38 @@
 import { doc, setDoc, collection, getDocs, query, where, limit } from 'firebase/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import axios from 'axios';
-import { db } from '../../firebase'; 
-
-const getAccessToken = async () => {
-  try {
-    const response = await axios.post(`https://${process.env.AUTH0_DOMAIN}/oauth/token`, {
-      client_id: process.env.AUTH0_M2M_CLIENT_ID,
-      client_secret: process.env.AUTH0_M2M_CLIENT_SECRET,
-      audience: process.env.AUTH0_M2M_AUDIENCE,
-      grant_type: 'client_credentials',
-      scope: 'create:tickets',
-    });
-    return response.data.access_token; 
-  } catch (error) {
-    if (error.response) {
-      console.error('Error response from Auth0:', error.response.data);
-    } else {
-      console.error('Error fetching access token:', error.message);
-    }
-    throw new Error('Unable to fetch access token');
-  }
-};
+import { db } from '../../firebase';
+import qrcode from 'qrcode';
 
 export async function POST(req, res) {
   try {
-    const accessToken = await getAccessToken();
-
-    if (!accessToken) {
-      return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401});
-      
+    const authHeader = req.headers.get('authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      new Response(JSON.stringify({ message: 'Unauthorized - No Bearer token provided' }), { status: 401 });
     }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      new Response(JSON.stringify({ message: 'Unauthorized - Bearer token is empty' }), { status: 401 });
+    }
+
+    const options = {
+      method: "GET",
+      url: "https://qr-ticket-app-main.vercel.app/",
+      headers: { "authorization": authHeader },
+    };
+
+    axios(options)
+      .then()
+      .catch(error => {
+        return new Response(error, { status: 500 });
+      });
 
     const { vatin, firstName, lastName, userSub } = await req.json();
 
     if (!vatin || !firstName || !lastName) {
-        return new Response(JSON.stringify({ message: 'Missing required fields: vatin, firstName, lastName' }), { status: 400 });
-      }
+      return new Response(JSON.stringify({ message: 'Please give all info needed' }), { status: 400 });
+    }
 
     const ticketsRef = collection(db, 'tickets');
     const q = query(ticketsRef, where('vatin', '==', vatin), limit(3));
@@ -56,8 +52,18 @@ export async function POST(req, res) {
     };
 
     await setDoc(doc(db, 'tickets', ticketId), newTicket);
-
-    return new Response(JSON.stringify({ ticketId }), { status: 200 });
+    const ticketURL = `https://qr-ticket-app-main.vercel.app/${ticketId}`;
+    const qrCodeBuffer = await qrcode.toBuffer(ticketURL, {
+      type: 'image/png',
+      quality: 0.3,
+      margin: 1,
+      width: 200,
+      scale: 4
+    });
+    return new Response(qrCodeBuffer, {
+      headers: { 'Content-Type': 'image/png' },
+      status: 200
+    });
   } catch (error) {
     console.error('Error creating ticket:', error);
     return new Response(JSON.stringify({ message: 'Error creating ticket' }), { status: 500 });

@@ -2,7 +2,6 @@
 import { useState } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import withAuth from '../../components/withAuth';
-import { useQRCode } from 'next-qrcode';
 import { useRouter } from 'next/navigation';
 
 const GenerateTicket = () => {
@@ -10,19 +9,28 @@ const GenerateTicket = () => {
   const [vatin, setVatin] = useState('');
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
-  const [ticketId, setTicketId] = useState(null);
+  const [image, setImage] = useState(null);
   const [error, setError] = useState(null);
-  const { Canvas } = useQRCode();
   const router = useRouter();
+
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    const response = await fetch('/api/getAccessToken', {
+      method: 'GET',
+    });
+
+    if (!response.ok) {
+      return new Response(JSON.stringify({ message: 'Unauthorized' }), { status: 401 });
+    }
+    const tokenData = await response.json();
     try {
       const response = await fetch('/api/generateTicket', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${tokenData.token}`
         },
         body: JSON.stringify({ vatin, firstName, lastName, userSub: user.sub }),
       });
@@ -33,16 +41,15 @@ const GenerateTicket = () => {
         throw new Error(errorData.message || 'Failed to create ticket.');
       }
 
-      const data = await response.json();
-      setTicketId(data.ticketId);
+      const arrayBuffer = await response.arrayBuffer();
+      const image = new Blob([arrayBuffer], { type: 'image/png' });
+      const imageUrl = URL.createObjectURL(image);
+      setImage(imageUrl);
       setError(null);
     } catch (err) {
       setError(err.message);
-      setTicketId(null);
     }
   };
-
-  const ticketUrl = ticketId ? `${window.location.origin}/${ticketId}` : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-200 to-indigo-600">
@@ -94,17 +101,10 @@ const GenerateTicket = () => {
           </button>
         </form>
 
-        {ticketId && (
+        {image && (
           <div className="mt-6 p-4 bg-green-100 text-green-700 rounded-lg text-center">
-            <p className="font-medium">Ticket created successfully with ID: {ticketId}</p>
-
             <div className="mt-4 flex justify-center">
-              <Canvas text={ticketUrl} options={{
-                errorCorrectionLevel: 'M',
-                margin: 3,
-                scale: 4,
-                width: 200
-              }} />
+              <img src={image} />
               <p className="mt-2 text-sm text-gray-600">Scan the QR code to view your ticket details.</p>
             </div>
             <button
