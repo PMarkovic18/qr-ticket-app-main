@@ -1,9 +1,9 @@
-"use client"; 
+"use client";
 import { useState } from 'react';
 import { useUser } from '@auth0/nextjs-auth0/client';
 import withAuth from '../../components/withAuth';
 import { useQRCode } from 'next-qrcode';
-import { useRouter } from 'next/navigation'; 
+import { useRouter } from 'next/navigation';
 
 const GenerateTicket = () => {
   const { user, error: authError, isLoading } = useUser();
@@ -35,14 +35,14 @@ const GenerateTicket = () => {
 
       const data = await response.json();
       setTicketId(data.ticketId);
-      setError(null); 
+      setError(null);
     } catch (err) {
       setError(err.message);
       setTicketId(null);
     }
   };
 
-  const ticketUrl = ticketId ? `${window.location.origin}/tickets/${ticketId}` : null;
+  const ticketUrl = ticketId ? `${window.location.origin}/${ticketId}` : null;
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-200 to-indigo-600">
@@ -100,19 +100,19 @@ const GenerateTicket = () => {
 
             <div className="mt-4 flex justify-center">
               <Canvas text={ticketUrl} options={{
-                  errorCorrectionLevel: 'M',
-                  margin: 3,
-                  scale: 4,
-                  width: 200
-                }} />
+                errorCorrectionLevel: 'M',
+                margin: 3,
+                scale: 4,
+                width: 200
+              }} />
               <p className="mt-2 text-sm text-gray-600">Scan the QR code to view your ticket details.</p>
             </div>
             <button
-          onClick={() => router.push('/tickets')}
-          className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg"
-        >
-          Back to Tickets
-        </button>
+              onClick={() => router.push('/tickets')}
+              className="mt-4 px-4 py-2 bg-indigo-600 text-white rounded-lg"
+            >
+              Back to Tickets
+            </button>
           </div>
         )}
 
