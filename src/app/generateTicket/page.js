@@ -57,7 +57,7 @@ const GenerateTicket = () => {
               value={vatin}
               onChange={(e) => setVatin(e.target.value)}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-600"
               placeholder="Enter your VATIN"
             />
           </div>
@@ -69,7 +69,7 @@ const GenerateTicket = () => {
               value={firstName}
               onChange={(e) => setFirstName(e.target.value)}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-600"
               placeholder="Enter your First Name"
             />
           </div>
@@ -81,7 +81,7 @@ const GenerateTicket = () => {
               value={lastName}
               onChange={(e) => setLastName(e.target.value)}
               required
-              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 text-gray-600"
               placeholder="Enter your Last Name"
             />
           </div>

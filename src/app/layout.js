@@ -1,16 +1,15 @@
-"use client"; // Ensure this is at the top to mark the layout as client-side
+"use client";
 import { UserProvider } from "@auth0/nextjs-auth0/client"
-import localFont from "next/font/local";  // Ensure font path is correct
-import "./globals.css";  // Ensure this file exists and the path is correct
-
+import localFont from "next/font/local";
+import "./globals.css";
 const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",  // Ensure font file exists at this path
+  src: "./fonts/GeistVF.woff",
   variable: "--font-geist-sans",
   weight: "100 900",
 });
 
 const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",  // Ensure font file exists at this path
+  src: "./fonts/GeistMonoVF.woff",
   variable: "--font-geist-mono",
   weight: "100 900",
 });
@@ -22,7 +21,7 @@ export default function RootLayout({ children }) {
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <UserProvider>{children} </UserProvider>
-      
+
       </body>
     </html>
   );
